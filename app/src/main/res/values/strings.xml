@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Monitorizacion</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_shared_preference_activity">Preferences</string>
+    <string name="txtInfo">Proveedores de localizacion en uso</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+
+    <string-array name="DrawerMenu">
+        <item>Configuracion</item>
+        <item>Mapa</item>
+        <item>Monitorizacion</item>
+    </string-array>
+</resources>
