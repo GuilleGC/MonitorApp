@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Monitorizacion.iml" filepath="$PROJECT_DIR$/Monitorizacion.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MonitorApp.iml" filepath="$PROJECT_DIR$/MonitorApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/monitorizacionAppBackend/monitorizacionAppBackend.iml" filepath="$PROJECT_DIR$/monitorizacionAppBackend/monitorizacionAppBackend.iml" />
       <module fileurl="file://$PROJECT_DIR$/monitorizacionAppBackendGcm/monitorizacionAppBackendGcm.iml" filepath="$PROJECT_DIR$/monitorizacionAppBackendGcm/monitorizacionAppBackendGcm.iml" />

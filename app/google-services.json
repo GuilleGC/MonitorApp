@@ -1,0 +1,75 @@
+{
+  "project_info": {
+    "project_id": "monitorapp-3d62a",
+    "project_number": "443985478875",
+    "name": "MonitorApp"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443985478875:android:4c84df8f81ad78cd",
+        "client_id": "android:com.udl.monitorizacion",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.udl.monitorizacion",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443985478875:android:d65c389145021002",
+        "client_id": "android:com.udl.monitorizacion.gcm",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.udl.monitorizacion.gcm",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
