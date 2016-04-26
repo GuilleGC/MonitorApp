@@ -24,6 +24,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**********
+ *
+ **********/
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -53,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LocationsSQLiteHelper locdbh =
                 new LocationsSQLiteHelper(this, "DBLocations", null, 2);
-        db = locdbh.getWritableDatabase();
+        db = locdbh.getReadableDatabase();
         c = db.rawQuery("SELECT * FROM Locations WHERE date LIKE '%" + date + "%'", null);
         mapFragment.getMapAsync(this);
 

@@ -8,6 +8,9 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
+    <string name="upstream_message_id_hint">331</string>
+    <string name="upstream_sender_id">443985478875</string>
+
     <string-array name="DrawerMenu">
         <item>Configuracion</item>
         <item>Mapa</item>

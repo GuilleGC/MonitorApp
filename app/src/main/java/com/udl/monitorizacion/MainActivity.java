@@ -1,15 +1,21 @@
 package com.udl.monitorizacion;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +26,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
+import java.io.IOException;
 
 
 /**********
@@ -43,6 +54,12 @@ public class MainActivity extends Activity {
 
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private boolean isReceiverRegistered;
+
+    public EndpointsLocationImpl locImpl = new EndpointsLocationImpl();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +88,9 @@ public class MainActivity extends Activity {
                 )) {
                     startService();
                     prefs.edit().putBoolean("LocationService", true).commit();
-                } else {
+                } else if (toggleButtonService.isChecked() && !(
+                        (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && gps) || (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && net)
+                )) {
                     Toast.makeText(getApplication(), "Porfavor active el localizador de su dispositivo", Toast.LENGTH_LONG).show();
                     toggleButtonService.setChecked(false);
                     stopService();
@@ -102,8 +121,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setHomeButtonEnabled(true);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, false,
                 R.drawable.icon_settings, R.string.drawer_close, R.string.drawer_close) {
@@ -124,6 +143,21 @@ public class MainActivity extends Activity {
             Intent i = new Intent(this, SharedPreferenceActivity.class);
             startActivity(i);
 
+        }
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                sharedPreferences.getBoolean(SharedPreferenceActivity.SENT_TOKEN_TO_SERVER, false);
+            }
+        };
+        registerReceiver();
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
         }
 
     }
@@ -151,6 +185,16 @@ public class MainActivity extends Activity {
                 Intent i = new Intent(this, SharedPreferenceActivity.class);
                 startActivity(i);
                 return true;
+            case R.id.action_push_locations:
+                push_sync();
+                //Toast.makeText(this, "Pushing Locations...", Toast.LENGTH_LONG).show();
+                return true;
+
+            case R.id.action_pull_locations:
+                pull_sync();
+                //Toast.makeText(this, "Pulling Locations....", Toast.LENGTH_LONG).show();
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -183,6 +227,7 @@ public class MainActivity extends Activity {
             editTextNET.setBackgroundColor(Color.RED);
         }
         super.onResume();
+        registerReceiver();
     }
 
     public void startService() {
@@ -196,8 +241,88 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        isReceiverRegistered = false;
         super.onPause();
         mDrawerLayout.closeDrawers();
+    }
+
+
+    public void push_sync(){
+        new AsyncSyncLoc().execute("push");
+    }
+
+    public void pull_sync(){
+        new AsyncSyncLoc().execute("pull");
+    }
+
+
+    private class AsyncSyncLoc extends AsyncTask<String, Void, Boolean>{
+
+        private ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("Please wait...");
+            this.dialog.setCanceledOnTouchOutside(false);
+            this.dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params){
+            try{
+                if (params[0].equals("push")){
+                    locImpl.pushToRemote(MainActivity.this);
+                    Log.i("MAIN", "Starting push..");
+                }else if(params[0].equals("pull")){
+                    locImpl.pullFromRemote(MainActivity.this);
+                    Log.i("MAIN", "Starting pull..");
+
+                }
+
+                return true;
+            }catch (IOException e){
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean status) {
+            if (dialog.isShowing()){
+                dialog.dismiss();
+            }
+            if (status == true){
+
+                Toast.makeText(getApplicationContext(), "Sync COMPLETE", Toast.LENGTH_LONG).show();
+            }else if(status == false) {
+                Toast.makeText(getApplicationContext(), "Sync ERROR", Toast.LENGTH_LONG).show();
+
+            }
+
+        }
+    }
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(SharedPreferenceActivity.REGISTRATION_COMPLETE));
+            isReceiverRegistered = true;
+        }
+    }
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i("MainActivity", "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 
 }

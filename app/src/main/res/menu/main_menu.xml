@@ -5,4 +5,17 @@
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings" />
+
+    <item
+        android:id="@+id/action_push_locations"
+        android:title="Push Locations"
+    />
+
+
+    <item
+        android:id="@+id/action_pull_locations"
+        android:title="Pull Locations"
+        />
+
+
 </menu>
